@@ -131,6 +131,43 @@ namespace UI.MVC.Controllers
         }
 
         [HttpGet]
+        public IActionResult ResetPassword(string? code = null)
+        {
+            var viewModel = new ResetPasswordViewModel
+            {
+                Code = code ?? string.Empty
+            };
+            return code == null ? View("Error") : View(viewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetPassword(ResetPasswordViewModel viewModel)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await userManager.FindByEmailAsync(viewModel.Email);
+                if (user == null)
+                {
+                    ModelState.AddModelError("Email", "User not found");
+                    return View();
+                }
+                var result = await userManager.ResetPasswordAsync(user, viewModel.Code, viewModel.Password);
+                if (result.Succeeded)
+                {
+                    return RedirectToAction("ResetPasswordConfirmation");
+                }
+            }
+            return View(viewModel);
+        }
+
+        [HttpGet]
+        public IActionResult ResetPasswordConfirmation()
+        {
+            return View();
+        }
+
+        [HttpGet]
         public IActionResult ForgotPasswordConfirmation()
         {
             return View();
