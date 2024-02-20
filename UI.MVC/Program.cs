@@ -12,7 +12,14 @@ builder.Services.AddDbContext<ApplicationDbContext>(e =>
 {
     e.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 })
-    .AddIdentity<AppUser, IdentityRole>()
+    .AddIdentity<AppUser, IdentityRole>(opt =>
+    {
+        opt.Password.RequireDigit = true;
+        opt.Password.RequireLowercase = true;
+        opt.Password.RequireUppercase = true;
+        opt.Password.RequireNonAlphanumeric = false;
+        opt.Password.RequiredLength = 6;
+    })
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
