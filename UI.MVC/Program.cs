@@ -1,7 +1,10 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using UI.MVC.Data;
+using UI.MVC.Helpers;
+using UI.MVC.Interfaces;
 using UI.MVC.Models;
+using UI.MVC.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +15,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(e =>
 {
     e.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 })
+    .AddTransient<ISendGridEmail, SendGridEmail>()
+    .Configure<AuthMessageSenderOptions>(builder.Configuration.GetSection("SendGrid"))
     .AddIdentity<IdentityUser, IdentityRole>(opt =>
     {
         opt.Password.RequireDigit = true;
@@ -19,6 +24,9 @@ builder.Services.AddDbContext<ApplicationDbContext>(e =>
         opt.Password.RequireUppercase = true;
         opt.Password.RequireNonAlphanumeric = false;
         opt.Password.RequiredLength = 6;
+        opt.Lockout.MaxFailedAccessAttempts = 5;
+        opt.SignIn.RequireConfirmedPhoneNumber= false;
+        //opt.SignIn.RequireConfirmedAccount= true;
     })
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
@@ -38,6 +46,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
