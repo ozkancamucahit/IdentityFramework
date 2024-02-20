@@ -12,7 +12,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(e =>
 {
     e.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 })
-    .AddIdentity<AppUser, IdentityRole>(opt =>
+    .AddIdentity<IdentityUser, IdentityRole>(opt =>
     {
         opt.Password.RequireDigit = true;
         opt.Password.RequireLowercase = true;

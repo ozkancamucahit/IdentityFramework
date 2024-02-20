@@ -12,7 +12,7 @@ using UI.MVC.Data;
 namespace UI.MVC.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240220142340_initial")]
+    [Migration("20240220153118_initial")]
     partial class initial
     {
         /// <inheritdoc />
