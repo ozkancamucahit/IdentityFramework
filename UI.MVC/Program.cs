@@ -31,6 +31,17 @@ builder.Services.AddDbContext<ApplicationDbContext>(e =>
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
+builder.Services.AddAuthentication()
+    .AddGoogle(googleOptions =>
+{
+    googleOptions.ClientId = builder.Configuration["Authentication:Google:ClientId"];
+    googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
+});
+    //.AddFacebook(facebookOptions =>
+    //{
+
+    //});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

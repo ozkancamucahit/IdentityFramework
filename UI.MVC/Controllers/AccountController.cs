@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using UI.MVC.Interfaces;
 using UI.MVC.Models;
@@ -181,6 +182,41 @@ namespace UI.MVC.Controllers
         {
             await signinManager.SignOutAsync();
             return RedirectToAction("Index", "Home");
+        }
+
+
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ExternalLoginConfirmation(ExternalLoginViewModel model, string? returnurl = null)
+        {
+            returnurl = returnurl ?? Url.Content("~/");
+
+            if (ModelState.IsValid)
+            {
+                //get the info about the user from external login provider
+                var info = await signinManager.GetExternalLoginInfoAsync();
+                if (info == null)
+                {
+                    return View("Error");
+                }
+                var user = new AppUser { UserName = model.Email, Email = model.Email };
+                var result = await userManager.CreateAsync(user);
+                if (result.Succeeded)
+                {
+                    //await _userManager.AddToRoleAsync(user, "User");
+                    result = await userManager.AddLoginAsync(user, info);
+                    if (result.Succeeded)
+                    {
+                        await signinManager.SignInAsync(user, isPersistent: false);
+                        await signinManager.UpdateExternalAuthenticationTokensAsync(info);
+                        return LocalRedirect(returnurl);
+                    }
+                }
+                ModelState.AddModelError("Email", "Error occuresd");
+            }
+            ViewData["ReturnUrl"] = returnurl;
+            return View(model);
         }
 
 
