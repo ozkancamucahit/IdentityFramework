@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using UI.MVC.Interfaces;
 using UI.MVC.Models;
 using UI.MVC.ViewModels;
@@ -9,23 +10,51 @@ namespace UI.MVC.Controllers
 {
     public class AccountController : Controller
     {
+        #region FIELDS
         private readonly UserManager<IdentityUser> userManager;
         private readonly SignInManager<IdentityUser> signinManager;
         private readonly ISendGridEmail sendGridEmail;
+        private readonly RoleManager<IdentityRole> roleManager; 
+        #endregion
 
+        #region CTOR
         public AccountController(
             UserManager<IdentityUser> userManager,
             SignInManager<IdentityUser> signinManager,
-            ISendGridEmail sendGridEmail)
+            ISendGridEmail sendGridEmail,
+            RoleManager<IdentityRole> roleManager)
         {
             this.userManager = userManager;
             this.signinManager = signinManager;
             this.sendGridEmail = sendGridEmail;
+            this.roleManager = roleManager;
         }
+        #endregion
 
+        [HttpGet]
         public async Task<IActionResult> Register(string? returnUrl = null)
         {
-            var model = new RegisterViewModel { ReturnUrl = returnUrl };
+
+            if(!await roleManager.RoleExistsAsync("Pokemon"))
+            {
+                await roleManager.CreateAsync(new IdentityRole("Pokemon"));
+                await roleManager.CreateAsync(new IdentityRole("Trainer"));
+            }
+
+            List<SelectListItem> listItems = new ();
+
+            listItems.Add(new SelectListItem()
+            {
+                Value = "Pokemon",
+                Text = "Pokemon"
+            });
+            listItems.Add(new SelectListItem()
+            {
+                Value = "Trainer",
+                Text = "Trainer"
+            });
+
+            var model = new RegisterViewModel { ReturnUrl = returnUrl, RoleList = listItems };
 
             return View(model);
         }
@@ -50,6 +79,16 @@ namespace UI.MVC.Controllers
 
                 if (result.Succeeded)
                 {
+                    if(model.RoleSelected != null && model.RoleSelected.Length > 0 && model.RoleSelected == "Trainer")
+                    {
+                        await userManager.AddToRoleAsync(user, "Trainer");
+                    }
+                    else
+                    {
+                        await userManager.AddToRoleAsync(user, "Pokemon");
+                    }
+
+
                     await signinManager.SignInAsync(user, isPersistent: false);
                     return LocalRedirect(returnUrl);
                 }
