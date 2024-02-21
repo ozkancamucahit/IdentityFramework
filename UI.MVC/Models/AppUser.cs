@@ -7,15 +7,15 @@ namespace UI.MVC.Models
 {
     public sealed class AppUser : IdentityUser
     {
-        [Required]
-        [Length(4, 20)]
+        //[Required]
+        //[Length(4, 20)]
         public string NickName { get; set; } = String.Empty;
 
         [NotMapped]
-        public string RoleId { get; set; }
+        public string? RoleId { get; set; }
         [NotMapped]
-        public string Role { get; set; }
+        public string? Role { get; set; }
         [NotMapped]
-        public IEnumerable<SelectListItem> RoleList{ get; set; }
+        public IEnumerable<SelectListItem>? RoleList{ get; set; }
     }
 }

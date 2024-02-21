@@ -101,5 +101,24 @@ namespace UI.MVC.Controllers
         }
 
 
+        [HttpPost]
+        public IActionResult Delete(string userId)
+        {
+            var user = dbContext.AppUser.FirstOrDefault(u => u.Id == userId);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            dbContext.AppUser.Remove(user);
+            dbContext.SaveChanges();
+
+            return RedirectToAction(nameof(Index));
+        }
+
+
+
+
+
+
     }
 }
