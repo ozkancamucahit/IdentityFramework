@@ -6,7 +6,7 @@ using UI.MVC.Models;
 
 namespace UI.MVC.Data
 {
-    public sealed class ApplicationDbContext : IdentityDbContext<IdentityUser>
+    public sealed class ApplicationDbContext : IdentityDbContext<AppUser>
     {
 
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> opt) : base(opt)
@@ -22,5 +22,21 @@ namespace UI.MVC.Data
         //    modelBuilder.Entity<AppUser>().ToTable("USERS").Property(p => p.Id).HasColumnName("UserId");
         //    modelBuilder.Entity<IdentityRole>().ToTable("ROLES");
         //}
+
+        public DbSet<AppUser> AppUser { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+
+            builder.Entity<AppUser>()
+                .Ignore(p => p.RoleId);
+
+            builder.Entity<AppUser>()
+                .Ignore(p => p.Role);
+
+            builder.Entity<AppUser>()
+                .Ignore(p => p.RoleList);
+        }
     }
 }

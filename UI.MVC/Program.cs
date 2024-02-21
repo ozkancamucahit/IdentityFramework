@@ -17,7 +17,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(e =>
 })
     .AddTransient<ISendGridEmail, SendGridEmail>()
     .Configure<AuthMessageSenderOptions>(builder.Configuration.GetSection("SendGrid"))
-    .AddIdentity<IdentityUser, IdentityRole>(opt =>
+    .AddIdentity<AppUser, IdentityRole>(opt =>
     {
         opt.Password.RequireDigit = true;
         opt.Password.RequireLowercase = true;

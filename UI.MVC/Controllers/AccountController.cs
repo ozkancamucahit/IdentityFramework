@@ -11,16 +11,16 @@ namespace UI.MVC.Controllers
     public class AccountController : Controller
     {
         #region FIELDS
-        private readonly UserManager<IdentityUser> userManager;
-        private readonly SignInManager<IdentityUser> signinManager;
+        private readonly UserManager<AppUser> userManager;
+        private readonly SignInManager<AppUser> signinManager;
         private readonly ISendGridEmail sendGridEmail;
         private readonly RoleManager<IdentityRole> roleManager; 
         #endregion
 
         #region CTOR
         public AccountController(
-            UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signinManager,
+            UserManager<AppUser> userManager,
+            SignInManager<AppUser> signinManager,
             ISendGridEmail sendGridEmail,
             RoleManager<IdentityRole> roleManager)
         {
