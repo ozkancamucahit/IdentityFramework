@@ -171,9 +171,9 @@ namespace UI.MVC.Controllers
                 return View(userClaimsViewModel);
             }
 
-            result = await userManager.AddClaimsAsync(user,
-                userClaimsViewModel.Claims.Where(c => c.IsSelected).Select(c => new Claim(c.ClaimType, c.IsSelected.ToString()))
-                );
+            var selectedClaims = userClaimsViewModel.Claims.Where(c => c.IsSelected);
+
+            result = await userManager.AddClaimsAsync(user, GenerateClaims(selectedClaims));
 
             if (!result.Succeeded)
             {
@@ -182,6 +182,17 @@ namespace UI.MVC.Controllers
 
             return RedirectToAction(nameof(Index));
         }
+
+        private IEnumerable<Claim> GenerateClaims(IEnumerable<UserClaim> userClaims)
+        {
+            var claims = userClaims.Select(c => GenerateClaimFromUserClaim(c));
+            return claims;
+        }
+
+        private Func<UserClaim, Claim> GenerateClaimFromUserClaim = (userClaim) =>
+        {
+            return new Claim(userClaim.ClaimType, userClaim.IsSelected.ToString());
+        };
 
 
     }

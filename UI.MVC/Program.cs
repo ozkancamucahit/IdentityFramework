@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using UI.MVC.Authorization;
 using UI.MVC.Data;
 using UI.MVC.Helpers;
 using UI.MVC.Interfaces;
@@ -30,6 +32,24 @@ builder.Services.AddDbContext<ApplicationDbContext>(e =>
     })
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
+
+builder.Services.AddAuthorization(opt =>
+{
+    opt.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
+    opt.AddPolicy("UserAndAdmin", policy => policy.RequireRole("Admin").RequireRole("User"));
+    opt.AddPolicy("Admin_CreateAccess", policy => policy.RequireRole("Admin").RequireClaim("create", "True"));
+    opt.AddPolicy("Admin_Create_Edit_DeleteAccess", policy => policy.RequireRole("Admin").RequireClaim("create", "True")
+    .RequireClaim("edit", "True")
+    .RequireClaim("Delete", "True"));
+    opt.AddPolicy("Admin_Create_Edit_DeleteAccess_OR_SuperAdmin", policy => policy.RequireAssertion(context =>
+    context.User.IsInRole("Admin") && context.User.HasClaim(c => c.Type == "Create" && c.Value == "True")
+                        && context.User.HasClaim(c => c.Type == "Edit" && c.Value == "True")
+                        && context.User.HasClaim(c => c.Type == "Delete" && c.Value == "True")
+                        || context.User.IsInRole("SuperAdmin")));
+    opt.AddPolicy("FirstNameAuth", policy => policy.Requirements.Add(new NickNameRequirement("billy")));
+    opt.AddPolicy("OnlyBloggerChecker", policy => policy.Requirements.Add(new OnlyBloggerAuthorization()) );
+    opt.AddPolicy("CheckNickNameTeddy", policy => policy.Requirements.Add(new NickNameRequirement("Teddy")) );
+});
 
 builder.Services.AddAuthentication()
     .AddGoogle(googleOptions =>

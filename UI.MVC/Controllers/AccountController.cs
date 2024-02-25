@@ -104,6 +104,7 @@ namespace UI.MVC.Controllers
         {
 
             LoginViewModel loginViewModel = new();
+            ViewData["ReturnUrl"] = returnUrl;
             loginViewModel.ReturnUrl = returnUrl ?? Url.Content("~/");
 
             return View(loginViewModel);
@@ -123,7 +124,10 @@ namespace UI.MVC.Controllers
 
             if(result.Succeeded)
             {
-                return RedirectToAction("Index", "Home");
+                if(!String.IsNullOrWhiteSpace(loginViewModel.ReturnUrl))
+                    return Redirect(loginViewModel.ReturnUrl);
+                else
+                    return RedirectToAction("Index", "Home");
             }
             if (result.IsLockedOut)
             {
